@@ -1,0 +1,44 @@
+- hosts: vm1
+  tasks:
+  - name: Disable SElinux
+    selinux:
+      state: disabled
+
+  - name: Install  Apache
+    yum:
+      name: httpd
+      state: latest    
+
+  - name: Make sure a service  is running
+    systemd:
+      state: started
+      enabled: yes
+      name: httpd
+
+  - name: Download template
+    get_url:
+      url: https://www.free-css.com/assets/files/free-css-templates/download/page285/bitcypo.zip
+      dest: /tmp/bitcypo.zip
+
+  - name: Install  unzip
+    yum:
+      name: unzip
+      state: latest
+
+  - name: Extract a template
+    unarchive:
+      src: /tmp/bitcypo.zip
+      dest: /tmp/
+      remote_src: yes
+
+  - name: Move templates files to  /var/www/html
+    shell: "mv  /tmp/bitcypo-html/*  /var/www/html/"
+    args:
+      creates: /var/www/html/index.html
+
+  - name: Give insecure permissions to an existing file
+    file:
+      path: /var/www/html
+      owner: apache
+      group: apache
+      recurse: yes 
